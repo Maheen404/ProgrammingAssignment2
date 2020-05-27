@@ -6,8 +6,9 @@
 
 makeCacheMatrix <- function(x = matrix()) {
   m <- matrix()
+  p <- matrix()
   set <- function(y = matrix()) {
-    if (as.vector(is.na(y))){
+    if (as.vector(is.na(y[1,1]))){
       stop('Empty matrix')
     }
     x <<- y
@@ -16,9 +17,13 @@ makeCacheMatrix <- function(x = matrix()) {
   get <- function() x
   setinverse <- function(inver) m <<- inver
   getinverse <- function() m
+  prev <- function(pre) p <<- pre
+  getprev <- function() p
   list(set = set, get = get,
        setinverse = setinverse,
-       getinverse = getinverse)
+       getinverse = getinverse,
+       prev = prev,
+       getprev = getprev)
 }
 
 
@@ -28,10 +33,7 @@ makeCacheMatrix <- function(x = matrix()) {
 cacheSolve <- function(x, ...) {
         ## Return a matrix that is the inverse of 'x'
   m <- x$getinverse()
-  if (!exists("data", inherits = FALSE)){
-    data <-matrix()
-  }
-  if((!as.vector(is.na(m))) & (data == x$get)) {
+  if((!as.vector(is.na(m[1,1]))) & identical(x$getprev(),x$get())) {
     message("getting cached data")
     return(m)
   }
@@ -39,5 +41,6 @@ cacheSolve <- function(x, ...) {
   id <- diag(dim(data)[1])
   m <- solve(data,id)
   x$setinverse(m)
+  x$prev(data)
   m
 }
